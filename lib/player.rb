@@ -4,8 +4,9 @@ require_relative 'visualizable'
 require_relative 'errors'
 
 class Player
-  include Visualizable, CustomErrors
-  attr_accessor :avatar
+  include CustomErrors
+  include Visualizable
+  attr_accessor :avatar, :moves
 
   class << self
     attr_accessor :avatars
@@ -16,11 +17,12 @@ class Player
 
   def initialize
     @avatar = register_player
+    @moves = []
     handle_game_violations(PlayerLimitViolation, player_numbers, PLAYER_LIMIT)
   end
 
   def register_player
-    puts "Player #{player_numbers + 1}, select your avatar (enter the number on the left or copy and paste the avatar):\n\n"
+    puts "\nPlayer #{player_numbers + 1}, select your avatar (enter the number or copy the avatar):\n\n"
     display_avatars
 
     loop do
@@ -33,12 +35,16 @@ class Player
 
   def select_avatar
     loop do
-      choice = gets.chomp
+      choice = make_choice
       return convert_to_unicode(choice) if choice.match(/^\d+$/) && choice.to_i.between?(1, 256)
-      return choice.strip if choice.unpack1('U*').between?(9728, 9983)
+      return choice.strip if !choice.empty? && choice.unpack1('U*').between?(9728, 9983)
 
       puts "Please only enter number between 1 and 256 or copy and paste the avatar.\n\n"
     end
+  end
+
+  def make_choice
+    gets.chomp
   end
 
   def convert_to_unicode(number)
@@ -50,10 +56,9 @@ class Player
   end
 end
 
-p1 = Player.new
-p2 = Player.new
-p3 = Player.new
-p p1.avatar
-p p2.avatar
+# p1 = Player.new
+# p2 = Player.new
+# p p1.avatar
+# p p2.avatar
 
-p p3.avatar
+# p p1.moves
